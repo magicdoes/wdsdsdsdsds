@@ -3,37 +3,75 @@ plugins {
 }
 
 group = 'com.bx'
-version = '1.0.0-updated'
+version = '1.0.0'
 
 repositories {
     mavenCentral()
-    maven { url = 'https://repo.papermc.io/repository/maven-public/' }
-    maven { url = 'https://jitpack.io' }
-    maven { url = 'https://repo.codemc.io/repository/maven-public/' }
+
+    maven {
+        name = 'papermc'
+        url = uri('https://repo.papermc.io/repository/maven-public/')
+    }
+
+    maven {
+        name = 'jitpack'
+        url = uri('https://jitpack.io')
+    }
+
+    maven {
+        name = 'codemc'
+        url = uri('https://repo.codemc.io/repository/maven-public/')
+    }
+
+    maven {
+        name = 'placeholderapi'
+        url = uri('https://repo.extendedclip.com/releases/')
+    }
+
+    maven {
+        name = 'essentialsx'
+        url = uri('https://repo.essentialsx.net/releases/')
+    }
 }
 
 dependencies {
-    compileOnly 'io.papermc.paper:paper-api:26.2-R0.1-SNAPSHOT'
-    compileOnly 'com.github.MilkBowl:VaultAPI:1.7.1'
-    implementation 'org.mongodb:mongodb-driver-sync:5.5.1'
-    implementation 'com.zaxxer:HikariCP:6.3.0'
-    implementation 'redis.clients:jedis:6.2.0'
-    implementation 'com.google.code.gson:gson:2.13.1'
-    implementation 'com.mysql:mysql-connector-j:9.4.0'
-    implementation 'org.xerial:sqlite-jdbc:3.50.3.0'
+    // Paper API
+    // Your server can still run Paper 26.2; the Maven dependency uses
+    // the underlying Minecraft API version, not "26.2".
+    compileOnly 'io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT'
+
+    // PlaceholderAPI
+    compileOnly 'me.clip:placeholderapi:2.11.6'
+
+    // Vault API
+    compileOnly 'com.github.MilkBowl:VaultAPI:1.7'
+
+    // EssentialsX API
+    compileOnly 'net.essentialsx:EssentialsX:2.21.2'
 }
 
 java {
-    toolchain { languageVersion = JavaLanguageVersion.of(21) }
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
 }
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
-    options.compilerArgs += ['-Xlint:none']
+    options.release = 21
+}
+
+processResources {
+    filteringCharset = 'UTF-8'
 }
 
 jar {
     archiveBaseName = 'MagicSMP'
+    archiveVersion = project.version
+
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
+}
+
+tasks.named('build') {
+    dependsOn tasks.named('jar')
 }
