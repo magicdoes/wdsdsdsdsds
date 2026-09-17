@@ -1,41 +1,38 @@
-plugins {
-    id 'java'
-}
+name: Build MagicSMP
 
-group = 'com.bx'
-version = '1.0.0'
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
 
-repositories {
-    mavenCentral()
+jobs:
+  build:
+    runs-on: ubuntu-latest
 
-    maven {
-        name = 'papermc'
-        url = 'https://repo.papermc.io/repository/maven-public/'
-    }
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    maven {
-        name = 'jitpack'
-        url = 'https://jitpack.io'
-    }
-}
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
 
-dependencies {
-    compileOnly 'io.papermc.paper:paper-api:26.2-R0.1-SNAPSHOT'
-}
+      - name: Extract project source
+        run: unzip -o project-source.zip
 
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
-    }
-}
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.14.3'
 
-tasks.withType(JavaCompile).configureEach {
-    options.encoding = 'UTF-8'
-}
+      - name: Build MagicSMP
+        run: gradle clean build --stacktrace
 
-jar {
-    archiveBaseName = 'MagicSMP'
-    archiveVersion = project.version
-
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-}
+      - name: Upload MagicSMP JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: MagicSMP
+          path: build/libs/*.jar
